@@ -14,18 +14,9 @@ A comprehensive web-based calculator for photographers working with neutral dens
 - **ND Filter Range**: Support for ND filters from 0 to 20 stops (up to ND1M)
 - **Real-Time Breakdown**: See exactly how each change (ND filter, aperture, ISO) contributes to total exposure compensation
 - **Visual Feedback**: Brightness comparison and scale bar showing filter strength
-- **Light Reduction Display**: Shows percentage of light blocked by the selected ND filter
-
-###  Exposure Timer
-- **Dual Mode**: Switch between countdown timer and stopwatch
-- **Precision Timing**: Down to deciseconds (0.1s) accuracy
-- **Quick Transfer**: One-click button to use calculated shutter speed
-- **Audio & Haptic Feedback**: Optional sound alerts and vibration on completion
-- **Custom Duration**: Set any exposure time manually
 
 ###  Bulb Mode Helper
 - **Countdown**: 3-2-1 audio countdown before opening shutter
-- **Millisecond Display**: Shows precise exposure time in milliseconds
 - **Auto Alert**: Automatic alert when it's time to close the shutter
 - **Audio Beeps**: Different tones for countdown and shutter close
 
@@ -90,8 +81,7 @@ New Shutter Speed = Original Shutter × 2^(Total Compensation)
 
 ## Technical Details
 
-- **Pure HTML/CSS/JavaScript**: No dependencies, works offline
-- **Responsive Design**: Works on desktop, tablet, and mobile
+- **Pure HTML**: No dependencies, works offline
 - **Browser Compatibility**: Modern browsers (Chrome, Firefox, Safari, Edge)
 - **Local Storage**: Presets saved locally in your browser
 - **Dark Theme**: Eye-friendly interface for field use
@@ -106,9 +96,7 @@ New Shutter Speed = Original Shutter × 2^(Total Compensation)
 
 ## Installation
 
-1. Clone this repository:git clone https://github.com/yourusername/ND-Filter-Exposure-Calculator.git
-2. Open `index.html` in your web browser
-
+Just Download and open `index.html` in your web browser on your device.
 That's it! No build process or installation required.
 
 ## Browser Support
