@@ -8,7 +8,7 @@ A comprehensive web-based calculator for photographers working with neutral dens
 
 ## Features
 
-### 📷 ND Filter Calculator
+###  ND Filter Calculator
 - **Exposure Triangle Calculation**: Automatically calculates new shutter speed based on ND filter strength, aperture, and ISO changes
 - **User-Friendly Inputs**: Accept shutter speeds in multiple formats (1/125, 2, 0.5)
 - **ND Filter Range**: Support for ND filters from 0 to 20 stops (up to ND1M)
@@ -16,20 +16,20 @@ A comprehensive web-based calculator for photographers working with neutral dens
 - **Visual Feedback**: Brightness comparison and scale bar showing filter strength
 - **Light Reduction Display**: Shows percentage of light blocked by the selected ND filter
 
-### ⏱️ Exposure Timer
+###  Exposure Timer
 - **Dual Mode**: Switch between countdown timer and stopwatch
 - **Precision Timing**: Down to deciseconds (0.1s) accuracy
 - **Quick Transfer**: One-click button to use calculated shutter speed
 - **Audio & Haptic Feedback**: Optional sound alerts and vibration on completion
 - **Custom Duration**: Set any exposure time manually
 
-### 💡 Bulb Mode Helper
+###  Bulb Mode Helper
 - **Countdown**: 3-2-1 audio countdown before opening shutter
 - **Millisecond Display**: Shows precise exposure time in milliseconds
 - **Auto Alert**: Automatic alert when it's time to close the shutter
 - **Audio Beeps**: Different tones for countdown and shutter close
 
-### 💾 Save & Load Presets
+###  Save & Load Presets
 - **Custom Presets**: Save your favorite camera/lens combinations
 - **Named Configurations**: Give each preset a descriptive name
 - **Quick Load**: Instantly load saved settings
