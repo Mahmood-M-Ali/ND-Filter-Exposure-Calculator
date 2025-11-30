@@ -1,0 +1,1057 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ND Filter & Exposure Calculator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #e0e0e0;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            padding: 30px 0;
+            margin-bottom: 30px;
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            color: #ff6b35;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .grid {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        @media (min-width: 769px) {
+            .grid {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 2em;
+            }
+
+            .timer-display {
+                font-size: 3em !important;
+            }
+
+            .btn {
+                padding: 10px 20px !important;
+                font-size: 0.9em !important;
+            }
+
+            .result-value {
+                font-size: 1.8em !important;
+            }
+
+            .brightness-comparison {
+                height: 80px !important;
+            }
+
+            .timer-input-group {
+                grid-template-columns: repeat(3, 1fr) !important;
+                gap: 8px !important;
+            }
+
+            .timer-input-group input {
+                font-size: 1em !important;
+            }
+
+            .two-col-input {
+                grid-template-columns: 1fr !important;
+            }
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .card.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .card h2 {
+            color: #ff6b35;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card h2::before {
+            content: "📷";
+            font-size: 1.2em;
+        }
+
+        .timer-card h2::before {
+            content: "⏱️";
+        }
+
+        .guide-card h2::before {
+            content: "📖";
+        }
+
+        .save-card h2::before {
+            content: "💾";
+        }
+
+        .section-divider {
+            margin: 25px 0 20px 0;
+            padding-top: 20px;
+            border-top: 2px solid rgba(255, 107, 53, 0.3);
+        }
+
+        .section-title {
+            color: #ff6b35;
+            font-size: 1.1em;
+            font-weight: bold;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .two-col-input {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #b0b0b0;
+            font-size: 0.95em;
+            font-weight: 500;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            color: #e0e0e0;
+            font-size: 1em;
+            transition: all 0.3s;
+        }
+
+        input::placeholder {
+            color: #808080;
+        }
+
+        input:focus,
+        select:focus {
+            outline: none;
+            border-color: #ff6b35;
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        input[type="range"] {
+            padding: 0;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            background: #ff6b35;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            background: #ff6b35;
+            border-radius: 50%;
+            cursor: pointer;
+            border: none;
+        }
+
+        .brightness-comparison {
+            display: flex;
+            gap: 15px;
+            margin: 20px 0;
+            height: 100px;
+        }
+
+        .brightness-box {
+            flex: 1;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            transition: all 0.5s;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .brightness-before {
+            background: #ffffff;
+            color: #1a1a2e;
+        }
+
+        .brightness-after {
+            background: #808080;
+            color: #ffffff;
+        }
+
+        .result-box {
+            background: rgba(255, 107, 53, 0.1);
+            border: 2px solid #ff6b35;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .result-box h3 {
+            color: #ff6b35;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+
+        .result-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #ffffff;
+            margin: 10px 0;
+        }
+
+        .result-detail {
+            color: #b0b0b0;
+            font-size: 0.95em;
+        }
+
+        .compensation-breakdown {
+            background: rgba(255, 255, 255, 0.05);
+            border-left: 3px solid #ff6b35;
+            padding: 12px;
+            margin-top: 15px;
+            border-radius: 5px;
+            text-align: left;
+            font-size: 0.9em;
+            line-height: 1.6;
+        }
+
+        .compensation-breakdown strong {
+            color: #ffa07a;
+        }
+
+        .timer-display {
+            font-size: 4em;
+            font-weight: bold;
+            text-align: center;
+            color: #ff6b35;
+            margin: 30px 0;
+            font-variant-numeric: tabular-nums;
+            text-shadow: 0 0 20px rgba(255, 107, 53, 0.3);
+        }
+
+        .timer-controls {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-primary {
+            background: #ff6b35;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #ff8555;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 107, 53, 0.4);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: #e0e0e0;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-small {
+            padding: 8px 15px;
+            font-size: 0.85em;
+        }
+
+        .toggle-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .toggle-switch {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 25px;
+            padding: 5px;
+            display: flex;
+            gap: 5px;
+        }
+
+        .toggle-option {
+            padding: 10px 25px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+
+        .toggle-option.active {
+            background: #ff6b35;
+            color: white;
+        }
+
+        .timer-input-group {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .timer-input-group input {
+            text-align: center;
+            font-size: 1.2em;
+        }
+
+        .scale-bar {
+            height: 30px;
+            background: linear-gradient(to right, #ffffff, #000000);
+            border-radius: 5px;
+            margin: 20px 0;
+            position: relative;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .scale-marker {
+            position: absolute;
+            top: -5px;
+            transform: translateX(-50%);
+            width: 3px;
+            height: 40px;
+            background: #ff6b35;
+            border-radius: 2px;
+            transition: left 0.3s;
+        }
+
+        .guide-content {
+            color: #b0b0b0;
+            line-height: 1.8;
+        }
+
+        .guide-content p {
+            margin-bottom: 15px;
+        }
+
+        .formula {
+            background: rgba(255, 107, 53, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            color: #ffa07a;
+            text-align: center;
+            font-size: 1.1em;
+        }
+
+        .help-text {
+            font-size: 0.85em;
+            color: #808080;
+            margin-top: 5px;
+            font-style: italic;
+        }
+
+        .bulb-helper {
+            background: rgba(255, 107, 53, 0.1);
+            border: 2px solid #ff6b35;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .bulb-time {
+            font-size: 1.5em;
+            color: #ff6b35;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .countdown {
+            font-size: 2.5em;
+            color: #ff6b35;
+            font-weight: bold;
+            margin: 15px 0;
+            min-height: 60px;
+        }
+
+        .saved-preset {
+            background: rgba(76, 175, 80, 0.15);
+            border: 1px solid rgba(76, 175, 80, 0.3);
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .saved-preset-info {
+            flex: 1;
+        }
+
+        .saved-preset-name {
+            color: #4caf50;
+            font-weight: bold;
+            margin-bottom: 3px;
+        }
+
+        .saved-preset-details {
+            color: #a0a0a0;
+            font-size: 0.85em;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>ND Filter & Exposure Calculator</h1>
+        </header>
+
+        <div class="grid">
+            <div class="card">
+                <h2>ND Filter Calculator</h2>
+
+                <div class="section-title">Current Settings</div>
+
+                <div class="input-group">
+                    <label for="originalShutter">Shutter Speed</label>
+                    <input type="text" id="originalShutter" value="1/125" placeholder="e.g., 1/125, 1/60, 2, 0.5">
+                    <div class="help-text">Format: 1/125 or 2 or 0.5</div>
+                </div>
+
+                <div class="two-col-input">
+                    <div class="input-group">
+                        <label for="originalAperture">Aperture</label>
+                        <input type="number" id="originalAperture" step="0.1" value="5.6" placeholder="e.g., 5.6">
+                    </div>
+                    <div class="input-group">
+                        <label for="originalISO">ISO</label>
+                        <input type="number" id="originalISO" step="1" value="100" placeholder="e.g., 100">
+                    </div>
+                </div>
+
+                <div class="section-divider">
+                    <div class="section-title">Add ND Filter & Adjust Settings</div>
+                </div>
+
+                <div class="input-group">
+                    <label for="ndStrength">ND Filter Strength (Stops): <span id="ndValue">6</span></label>
+                    <input type="range" id="ndStrength" min="0" max="20" value="6" step="1">
+                    <div
+                        style="display: flex; justify-content: space-between; color: #808080; font-size: 0.85em; margin-top: 5px;">
+                        <span>No filter</span>
+                        <span>ND1M (20 stops)</span>
+                    </div>
+                </div>
+
+                <div class="two-col-input">
+                    <div class="input-group">
+                        <label for="newAperture">New Aperture (optional)</label>
+                        <input type="number" id="newAperture" step="0.1" value="5.6" placeholder="e.g., 11">
+                        <div class="help-text">Leave same if not changing</div>
+                    </div>
+                    <div class="input-group">
+                        <label for="newISO">New ISO (optional)</label>
+                        <input type="number" id="newISO" step="1" value="100" placeholder="e.g., 200">
+                        <div class="help-text">Leave same if not changing</div>
+                    </div>
+                </div>
+
+                <div class="brightness-comparison">
+                    <div class="brightness-box brightness-before">Before</div>
+                    <div class="brightness-box brightness-after" id="brightnessAfter">After</div>
+                </div>
+
+                <div class="scale-bar">
+                    <div class="scale-marker" id="scaleMarker"></div>
+                </div>
+
+                <div class="result-box">
+                    <h3>New Shutter Speed</h3>
+                    <div class="result-value" id="newShutter">8s</div>
+                    <div class="result-detail">
+                        <span id="ndFilterName">ND64</span> •
+                        <span id="lightReduction">98.4%</span> light blocked<br>
+                        Total Compensation: <span id="totalStops">+6.0</span> stops
+                    </div>
+                    <div class="compensation-breakdown" id="compensationBreakdown">
+                        <strong>Breakdown:</strong><br>
+                        • ND Filter: +6.0 stops<br>
+                        • Aperture change: 0.0 stops<br>
+                        • ISO change: 0.0 stops<br>
+                        = <strong>+6.0 stops total</strong>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card timer-card">
+                <h2>Exposure Timer</h2>
+
+                <div class="toggle-container">
+                    <div class="toggle-switch">
+                        <div class="toggle-option active" onclick="switchMode('timer')">Timer</div>
+                        <div class="toggle-option" onclick="switchMode('stopwatch')">Stopwatch</div>
+                    </div>
+                </div>
+
+                <div id="timerMode">
+                    <div class="timer-input-group">
+                        <div>
+                            <label style="text-align: center;">Minutes</label>
+                            <input type="number" id="timerMinutes" min="0" max="99" value="0">
+                        </div>
+                        <div>
+                            <label style="text-align: center;">Seconds</label>
+                            <input type="number" id="timerSeconds" min="0" max="59" value="30">
+                        </div>
+                        <div>
+                            <label style="text-align: center;">Deciseconds</label>
+                            <input type="number" id="timerDeciseconds" min="0" max="9" value="0">
+                        </div>
+                    </div>
+                    <button class="btn btn-secondary" onclick="useCalculatedTime()"
+                        style="width: 100%; margin-bottom: 15px;">
+                        Use Calculated Shutter Speed
+                    </button>
+                </div>
+
+                <div class="timer-display" id="timerDisplay">00:30.0</div>
+
+                <div class="timer-controls">
+                    <button class="btn btn-primary" id="startBtn" onclick="startTimer()">Start</button>
+                    <button class="btn btn-secondary" onclick="pauseTimer()">Pause</button>
+                    <button class="btn btn-secondary" onclick="resetTimer()">Reset</button>
+                </div>
+
+                <div class="input-group">
+                    <label>
+                        <input type="checkbox" id="soundAlert" checked style="width: auto; margin-right: 8px;">
+                        Sound Alert on Completion
+                    </label>
+                </div>
+
+                <div class="section-divider">
+                    <div class="section-title">💡 Bulb Mode Helper</div>
+                </div>
+
+                <div class="bulb-helper">
+                    <div class="bulb-time" id="bulbTime">-</div>
+                    <div class="countdown" id="bulbCountdown"></div>
+                    <button class="btn btn-primary" onclick="startBulbMode()" style="width: 100%;">Start Bulb
+                        Countdown</button>
+                </div>
+            </div>
+
+            <div class="card save-card full-width">
+                <h2>Save & Load Settings</h2>
+                <div class="two-col-input">
+                    <div class="input-group">
+                        <label for="presetName">Preset Name</label>
+                        <input type="text" id="presetName" placeholder="e.g., My Canon Setup">
+                    </div>
+                    <div style="display: flex; gap: 10px; align-items: flex-end;">
+                        <button class="btn btn-primary" onclick="savePreset()" style="flex: 1;">Save Current</button>
+                        <button class="btn btn-secondary" onclick="resetAll()">Reset All</button>
+                    </div>
+                </div>
+                <div id="savedPresetsList"></div>
+            </div>
+
+            <div class="card guide-card full-width">
+                <h2>How It Works</h2>
+                <div class="guide-content">
+                    <p>This calculator uses the <strong>Exposure Triangle</strong> to maintain correct exposure when
+                        adding ND filters or changing aperture and ISO. All changes are measured in
+                        <strong>stops</strong>, where 1 stop = doubling or halving the light.</p>
+
+                    <div class="formula">
+                        Total Stops = ND Filter + Aperture Change + ISO Change
+                    </div>
+
+                    <p><strong>Understanding Total Compensation:</strong></p>
+                    <p>The "Total Compensation" shows how many stops slower your shutter speed needs to be to maintain
+                        the same exposure. This is the sum of all your changes:</p>
+                    <p>• <strong>ND Filter:</strong> Blocks light, so shutter needs to be slower (positive stops)<br>
+                        • <strong>Smaller aperture (f/5.6 → f/11):</strong> Less light, shutter slower (positive
+                        stops)<br>
+                        • <strong>Larger aperture (f/11 → f/5.6):</strong> More light, shutter faster (negative
+                        stops)<br>
+                        • <strong>Lower ISO (200 → 100):</strong> Less sensitive, shutter slower (positive stops)<br>
+                        • <strong>Higher ISO (100 → 200):</strong> More sensitive, shutter faster (negative stops)</p>
+
+                    <p><strong>Example:</strong> If total compensation is +8 stops, your shutter speed will be 256×
+                        slower (2^8 = 256). So 1/125s becomes 2 seconds. This is correct and maintains proper exposure!
+                    </p>
+
+                    <p><strong>Calculation Details:</strong></p>
+                    <p>• <strong>ND Filter:</strong> ND64 = 6 stops (2^6 = 64). Blocks 98.44% of light<br>
+                        • <strong>Aperture:</strong> Stops = 2 × log₂(f-number). f/5.6 → f/11 = +2 stops<br>
+                        • <strong>ISO:</strong> Stops = log₂(New / Original). ISO 100 → 200 = +1 stop<br>
+                        • <strong>New Shutter:</strong> Original × 2^(Total Stops)</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentMode = 'timer';
+        let timerInterval = null;
+        let timerRunning = false;
+        let currentTime = 30000;
+        let stopwatchTime = 0;
+        let savedPresets = [];
+        let bulbCountdownInterval = null;
+
+        function parseShutterSpeed(input) {
+            input = input.trim().toLowerCase().replace(/\s/g, '');
+            if (input.includes('m') && !input.includes('/')) {
+                const parts = input.split('m');
+                const mins = parseFloat(parts[0]) || 0;
+                const secs = parseFloat(parts[1]) || 0;
+                return mins * 60 + secs;
+            }
+            if (input.includes('/')) {
+                const parts = input.split('/');
+                const numerator = parseFloat(parts[0]) || 1;
+                const denominator = parseFloat(parts[1]) || 1;
+                return numerator / denominator;
+            }
+            input = input.replace(/s(ec)?$/, '');
+            return parseFloat(input) || 0.008;
+        }
+
+        function calculateND() {
+            const originalShutterInput = document.getElementById('originalShutter').value;
+            const originalShutter = parseShutterSpeed(originalShutterInput);
+            const originalAperture = parseFloat(document.getElementById('originalAperture').value) || 5.6;
+            const originalISO = parseFloat(document.getElementById('originalISO').value) || 100;
+            const ndStops = parseInt(document.getElementById('ndStrength').value) || 0;
+            const newAperture = parseFloat(document.getElementById('newAperture').value) || originalAperture;
+            const newISO = parseFloat(document.getElementById('newISO').value) || originalISO;
+
+            const originalApertureStops = 2 * Math.log2(originalAperture);
+            const newApertureStops = 2 * Math.log2(newAperture);
+            const apertureStopsChange = newApertureStops - originalApertureStops;
+            const isoStopsChange = Math.log2(newISO / originalISO);
+            const totalStopsCompensation = ndStops + apertureStopsChange + isoStopsChange;
+            const multiplier = Math.pow(2, totalStopsCompensation);
+            const newShutterSeconds = originalShutter * multiplier;
+
+            document.getElementById('ndValue').textContent = ndStops;
+            document.getElementById('newShutter').textContent = formatShutterSpeed(newShutterSeconds);
+
+            if (ndStops === 0) {
+                document.getElementById('ndFilterName').textContent = 'No filter';
+                document.getElementById('lightReduction').textContent = '0%';
+            } else {
+                const ndNumber = Math.pow(2, ndStops);
+                document.getElementById('ndFilterName').textContent = `ND${ndNumber}`;
+                const lightPercent = (1 - (1 / Math.pow(2, ndStops))) * 100;
+                document.getElementById('lightReduction').textContent = lightPercent.toFixed(2) + '%';
+            }
+
+            const stopsSign = totalStopsCompensation >= 0 ? '+' : '';
+            document.getElementById('totalStops').textContent = stopsSign + totalStopsCompensation.toFixed(1);
+
+            const ndSign = ndStops >= 0 ? '+' : '';
+            const apertureSign = apertureStopsChange >= 0 ? '+' : '';
+            const isoSign = isoStopsChange >= 0 ? '+' : '';
+            const totalSign = totalStopsCompensation >= 0 ? '+' : '';
+
+            let breakdownHTML = '<strong>Breakdown:</strong><br>';
+            breakdownHTML += `• ND Filter: ${ndSign}${ndStops.toFixed(1)} stops<br>`;
+            breakdownHTML += `• Aperture (f/${originalAperture} → f/${newAperture}): ${apertureSign}${apertureStopsChange.toFixed(1)} stops<br>`;
+            breakdownHTML += `• ISO (${originalISO} → ${newISO}): ${isoSign}${isoStopsChange.toFixed(1)} stops<br>`;
+            breakdownHTML += `= <strong>${totalSign}${totalStopsCompensation.toFixed(1)} stops total</strong>`;
+            document.getElementById('compensationBreakdown').innerHTML = breakdownHTML;
+
+            const brightness = Math.max(10, Math.min(255, 128 - (totalStopsCompensation * 12)));
+            document.getElementById('brightnessAfter').style.background = `rgb(${brightness}, ${brightness}, ${brightness})`;
+            const markerPosition = (ndStops / 20) * 100;
+            document.getElementById('scaleMarker').style.left = markerPosition + '%';
+
+            updateBulbHelper(newShutterSeconds);
+        }
+
+        function formatShutterSpeed(seconds) {
+            if (seconds < 1) {
+                const denominator = Math.round(1 / seconds);
+                return `1/${denominator}s`;
+            } else if (seconds < 60) {
+                return Math.round(seconds) + 's';
+            } else {
+                const minutes = Math.floor(seconds / 60);
+                const secs = Math.round(seconds % 60);
+                return `${minutes}m ${secs}s`;
+            }
+        }
+
+        function formatTime(milliseconds) {
+            const totalSeconds = Math.floor(milliseconds / 1000);
+            const minutes = Math.floor(totalSeconds / 60);
+            const seconds = totalSeconds % 60;
+            const deciseconds = Math.floor((milliseconds % 1000) / 100);
+            return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}.${deciseconds}`;
+        }
+
+        function switchMode(mode) {
+            currentMode = mode;
+            document.querySelectorAll('.toggle-option').forEach(opt => opt.classList.remove('active'));
+            event.target.classList.add('active');
+            document.getElementById('timerMode').style.display = mode === 'timer' ? 'block' : 'none';
+            resetTimer();
+        }
+
+        function startTimer() {
+            if (timerRunning) return;
+            timerRunning = true;
+            document.getElementById('startBtn').textContent = 'Running...';
+
+            if (currentMode === 'timer') {
+                if (currentTime === 0 || !timerInterval) {
+                    const minutes = parseInt(document.getElementById('timerMinutes').value) || 0;
+                    const seconds = parseInt(document.getElementById('timerSeconds').value) || 0;
+                    const deciseconds = parseInt(document.getElementById('timerDeciseconds').value) || 0;
+                    currentTime = (minutes * 60 + seconds) * 1000 + deciseconds * 100;
+                }
+                timerInterval = setInterval(() => {
+                    currentTime -= 100;
+                    if (currentTime <= 0) {
+                        currentTime = 0;
+                        document.getElementById('timerDisplay').textContent = '00:00.0';
+                        pauseTimer();
+                        playAlert();
+                        return;
+                    }
+                    document.getElementById('timerDisplay').textContent = formatTime(currentTime);
+                }, 100);
+            } else {
+                timerInterval = setInterval(() => {
+                    stopwatchTime += 100;
+                    document.getElementById('timerDisplay').textContent = formatTime(stopwatchTime);
+                }, 100);
+            }
+        }
+
+        function pauseTimer() {
+            timerRunning = false;
+            clearInterval(timerInterval);
+            timerInterval = null;
+            document.getElementById('startBtn').textContent = 'Start';
+        }
+
+        function resetTimer() {
+            pauseTimer();
+            if (currentMode === 'timer') {
+                const minutes = parseInt(document.getElementById('timerMinutes').value) || 0;
+                const seconds = parseInt(document.getElementById('timerSeconds').value) || 0;
+                const deciseconds = parseInt(document.getElementById('timerDeciseconds').value) || 0;
+                currentTime = (minutes * 60 + seconds) * 1000 + deciseconds * 100;
+                document.getElementById('timerDisplay').textContent = formatTime(currentTime);
+            } else {
+                stopwatchTime = 0;
+                document.getElementById('timerDisplay').textContent = '00:00.0';
+            }
+        }
+
+        function useCalculatedTime() {
+            const shutterText = document.getElementById('newShutter').textContent;
+            let totalSeconds = 0;
+
+            if (shutterText.includes('m')) {
+                const parts = shutterText.split('m');
+                const mins = parseInt(parts[0]);
+                const secs = parseInt(parts[1].replace('s', '').trim());
+                totalSeconds = mins * 60 + secs;
+            } else if (shutterText.includes('/')) {
+                const fraction = shutterText.replace('s', '').split('/');
+                totalSeconds = parseInt(fraction[0]) / parseInt(fraction[1]);
+            } else {
+                totalSeconds = parseInt(shutterText.replace('s', ''));
+            }
+
+            const minutes = Math.floor(totalSeconds / 60);
+            const seconds = Math.floor(totalSeconds % 60);
+            const deciseconds = Math.round((totalSeconds % 1) * 10);
+
+            document.getElementById('timerMinutes').value = minutes;
+            document.getElementById('timerSeconds').value = seconds;
+            document.getElementById('timerDeciseconds').value = deciseconds;
+            resetTimer();
+        }
+
+        function playAlert() {
+            if (!document.getElementById('soundAlert').checked) return;
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            oscillator.frequency.value = 800;
+            oscillator.type = 'sine';
+            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.5);
+            if (navigator.vibrate) {
+                navigator.vibrate([200, 100, 200]);
+            }
+        }
+
+        function updateBulbHelper(seconds) {
+            if (seconds >= 1) {
+                document.getElementById('bulbTime').textContent = formatShutterSpeed(seconds) + ' (' + (seconds * 1000).toFixed(0) + 'ms)';
+            } else {
+                document.getElementById('bulbTime').textContent = 'N/A (too fast for bulb mode)';
+            }
+        }
+
+        function startBulbMode() {
+            const timeText = document.getElementById('bulbTime').textContent;
+            if (timeText.includes('N/A')) {
+                alert('Exposure time too fast for bulb mode');
+                return;
+            }
+
+            let countdown = 3;
+            document.getElementById('bulbCountdown').textContent = countdown;
+
+            clearInterval(bulbCountdownInterval);
+            bulbCountdownInterval = setInterval(() => {
+                countdown--;
+                if (countdown > 0) {
+                    document.getElementById('bulbCountdown').textContent = countdown;
+                    playBeep();
+                } else {
+                    document.getElementById('bulbCountdown').textContent = 'OPEN SHUTTER!';
+                    playBeep(1000);
+                    clearInterval(bulbCountdownInterval);
+
+                    const shutterText = document.getElementById('newShutter').textContent;
+                    let totalSeconds = 0;
+                    if (shutterText.includes('m')) {
+                        const parts = shutterText.split('m');
+                        totalSeconds = parseInt(parts[0]) * 60 + parseInt(parts[1].replace('s', '').trim());
+                    } else if (!shutterText.includes('/')) {
+                        totalSeconds = parseInt(shutterText.replace('s', ''));
+                    }
+
+                    if (totalSeconds > 0) {
+                        setTimeout(() => {
+                            document.getElementById('bulbCountdown').textContent = 'CLOSE SHUTTER!';
+                            playAlert();
+                        }, totalSeconds * 1000);
+                    }
+                }
+            }, 1000);
+        }
+
+        function playBeep(freq = 600) {
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            oscillator.frequency.value = freq;
+            oscillator.type = 'sine';
+            gainNode.gain.setValueAtTime(0.2, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.15);
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.15);
+        }
+
+        function savePreset() {
+            const name = document.getElementById('presetName').value.trim();
+            if (!name) {
+                alert('Please enter a preset name');
+                return;
+            }
+            const preset = {
+                name: name,
+                shutter: document.getElementById('originalShutter').value,
+                aperture: document.getElementById('originalAperture').value,
+                iso: document.getElementById('originalISO').value,
+                nd: document.getElementById('ndStrength').value
+            };
+            savedPresets.push(preset);
+            localStorage.setItem('ndCalculatorPresets', JSON.stringify(savedPresets));
+            document.getElementById('presetName').value = '';
+            displaySavedPresets();
+        }
+
+        function loadPreset(index) {
+            const preset = savedPresets[index];
+            document.getElementById('originalShutter').value = preset.shutter;
+            document.getElementById('originalAperture').value = preset.aperture;
+            document.getElementById('originalISO').value = preset.iso;
+            document.getElementById('newAperture').value = preset.aperture;
+            document.getElementById('newISO').value = preset.iso;
+            document.getElementById('ndStrength').value = preset.nd;
+            calculateND();
+        }
+
+        function deletePreset(index) {
+            savedPresets.splice(index, 1);
+            localStorage.setItem('ndCalculatorPresets', JSON.stringify(savedPresets));
+            displaySavedPresets();
+        }
+
+        function displaySavedPresets() {
+            const list = document.getElementById('savedPresetsList');
+            if (savedPresets.length === 0) {
+                list.innerHTML = '<p style="color: #808080; font-style: italic; margin-top: 10px;">No saved presets</p>';
+                return;
+            }
+            list.innerHTML = savedPresets.map((preset, index) => `
+<div class="saved-preset">
+<div class="saved-preset-info">
+<div class="saved-preset-name">${preset.name}</div>
+<div class="saved-preset-details">${preset.shutter}, f/${preset.aperture}, ISO ${preset.iso}, ND${Math.pow(2, preset.nd)}</div>
+</div>
+<div class="btn-group">
+<button class="btn btn-secondary btn-small" onclick="loadPreset(${index})">Load</button>
+<button class="btn btn-secondary btn-small" onclick="deletePreset(${index})">Delete</button>
+</div>
+</div>
+`).join('');
+        }
+
+        function resetAll() {
+            if (confirm('Reset all settings to defaults?')) {
+                document.getElementById('originalShutter').value = '1/125';
+                document.getElementById('originalAperture').value = 5.6;
+                document.getElementById('originalISO').value = 100;
+                document.getElementById('newAperture').value = 5.6;
+                document.getElementById('newISO').value = 100;
+                document.getElementById('ndStrength').value = 6;
+                calculateND();
+            }
+        }
+
+        document.getElementById('originalShutter').addEventListener('input', calculateND);
+        document.getElementById('originalAperture').addEventListener('input', calculateND);
+        document.getElementById('originalISO').addEventListener('input', calculateND);
+        document.getElementById('ndStrength').addEventListener('input', calculateND);
+        document.getElementById('newAperture').addEventListener('input', calculateND);
+        document.getElementById('newISO').addEventListener('input', calculateND);
+
+        document.getElementById('originalAperture').addEventListener('input', function () {
+            if (document.getElementById('newAperture').value == this.dataset.previousValue || !document.getElementById('newAperture').dataset.userModified) {
+                document.getElementById('newAperture').value = this.value;
+            }
+            this.dataset.previousValue = this.value;
+        });
+
+        document.getElementById('originalISO').addEventListener('input', function () {
+            if (document.getElementById('newISO').value == this.dataset.previousValue || !document.getElementById('newISO').dataset.userModified) {
+                document.getElementById('newISO').value = this.value;
+            }
+            this.dataset.previousValue = this.value;
+        });
+
+        document.getElementById('newAperture').addEventListener('input', function () {
+            this.dataset.userModified = 'true';
+        });
+
+        document.getElementById('newISO').addEventListener('input', function () {
+            this.dataset.userModified = 'true';
+        });
+
+        // Load saved presets from localStorage
+        const stored = localStorage.getItem('ndCalculatorPresets');
+        if (stored) {
+            savedPresets = JSON.parse(stored);
+            displaySavedPresets();
+        }
+
+        calculateND();
+        resetTimer();
+    </script>
+</body>
+
+</html>
